@@ -91,6 +91,12 @@ static bool optRotate;
 static vector<Bitmap*> bitmaps;
 static vector<Packer*> packers;
 
+static bool IsFolder(const char* path)
+{
+    struct stat s;
+    return stat(path, &s) == 0 && (s.st_mode & S_IFDIR);
+}
+
 static void SplitFileName(const string& path, string* dir, string* name, string* ext)
 {
     size_t si = path.rfind('/') + 1;
@@ -280,7 +286,7 @@ int main(int argc, const char* argv[])
         HashString(newHash, argv[i]);
     for (size_t i = 0; i < inputs.size(); ++i)
     {
-        if (inputs[i].rfind('.') == string::npos)
+        if (IsFolder(inputs[i].c_str()))
             HashFiles(newHash, inputs[i]);
         else
             HashFile(newHash, inputs[i]);
@@ -339,7 +345,7 @@ int main(int argc, const char* argv[])
         cout << "loading images..." << endl;
     for (size_t i = 0; i < inputs.size(); ++i)
     {
-        if (inputs[i].rfind('.') != string::npos)
+        if (!IsFolder(inputs[i].c_str()))
             LoadBitmap("", inputs[i]);
         else
             LoadBitmaps(inputs[i], "");
